@@ -2,6 +2,7 @@ import os
 import numpy as np
 import torch
 import tempfile
+import os.path
 import matplotlib.pyplot as plt
 from diffusers import StableDiffusionPipeline
 
@@ -52,6 +53,10 @@ def draw():
 def image():
     if request.method == "POST":
         drawing = request.form["drawing"]
+        print("generating drawing '", drawing, "'")
+        drawing_filename = 'images/' + drawing.replace(' ', '_') + '.png'
+        if os.path.exists(drawing_filename):
+            return send_file(drawing_filename, mimetype='image/png')
         #pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
         #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5")
         #prompt = "a photo of an astronaut riding a dragon in paris"
@@ -59,13 +64,17 @@ def image():
         #image.save("astronaut_rides_horse.png")
         #image = pipe(drawing).images[0]  
         #return send_file(image, mimetype='image/png')
-        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
-        pipe = pipe.to("cuda")
-        image = pipe(drawing).images[0]  
-        image.seek(0)
-        image.save('/tmp/tmp.png')
-        #f = pipe(drawing).images[0]  
-        return send_file('/tmp/tmp.png', mimetype='image/png')
+        with tempfile.NamedTemporaryFile(suffix='.png') as f:
+            pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+            pipe = pipe.to("cuda")
+            image = pipe(drawing).images[0]  
+            image.seek(0)
+            #image.save('/tmp/tmp.png')
+            #image.save(f.name)
+            image.save(drawing_filename)
+            #f = pipe(drawing).images[0]  
+            #return send_file(f.name, mimetype='image/png')
+            return send_file(drawing_filename, mimetype='image/png')
 
 def bork():
         with tempfile.NamedTemporaryFile(suffix='.png') as f:
