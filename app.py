@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import os
 import numpy as np
 import torch
@@ -7,12 +8,31 @@ import matplotlib.pyplot as plt
 from diffusers import StableDiffusionPipeline
 
 
+=======
+import argparse
+import binascii
+import glob
+>>>>>>> Stashed changes
 import openai
-from flask import Flask, redirect, render_template, request, url_for, send_file
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
+import tempfile
+import torch
+#import os.path
+from diffusers import StableDiffusionPipeline
+from flask import Flask, redirect, render_template, request, url_for, send_file, send_from_directory
 
 app = Flask(__name__)
+app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+def encode(x):
+    return binascii.hexlify(x.encode('utf-8')).decode()
+
+def decode(x):
+    return binascii.unhexlify(x.encode('utf-8')).decode()
 
 @app.route("/", methods=("GET", "POST"))
 def index():
@@ -57,6 +77,7 @@ def image():
         drawing_filename = 'images/' + drawing.replace(' ', '_') + '.png'
         if os.path.exists(drawing_filename):
             return send_file(drawing_filename, mimetype='image/png')
+<<<<<<< Updated upstream
         #pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
         #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5")
         #prompt = "a photo of an astronaut riding a dragon in paris"
@@ -75,39 +96,40 @@ def image():
             #f = pipe(drawing).images[0]  
             #return send_file(f.name, mimetype='image/png')
             return send_file(drawing_filename, mimetype='image/png')
+=======
+        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        pipe = pipe.to("cuda")
+        image = pipe(drawing).images[0]  
+        image.seek(0)
+        image.save(drawing_filename)
+        return send_file(drawing_filename, mimetype='image/png')
+>>>>>>> Stashed changes
 
-def bork():
-        with tempfile.NamedTemporaryFile(suffix='.png') as f:
-            pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
-            pipe = pipe.to("cuda")
-            #plt.imsave(f, image)
-            image = pipe(drawing).images[0]  
-            image.seek(0)
-            image.save(f.name)
-            #f = pipe(drawing).images[0]  
-            return send_file(f, mimetype='image/png')
+# This next section was borrowed from: https://github.com/piyush01123/Flask-Image-Gallery
+@app.route('/gallery')
+def home():
+    #root_dir = app.config['ROOT_DIR']
+    root_dir = 'images'
+    image_paths = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                image_paths.append(encode(os.path.join(root,file)))
+    return render_template('gallery.html', paths=image_paths)
 
 
-def generate_prompt(animal):
-    return """Suggest three names for an animal that is a superhero.
+@app.route('/cdn/<path:filepath>')
+def download_file(filepath):
+    dir,filename = os.path.split(decode(filepath))
+    return send_from_directory(dir, filename, as_attachment=False)
 
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: {}
-Names:""".format(
-        animal.capitalize()
-    )
-
-def generate_prompt_drawing(drawing):
-    return """Suggest three names for an animal that is a superhero.
-
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: {}
-Names:""".format(
-        drawing.capitalize()
-    )
+if __name__=="__main__":
+    parser = argparse.ArgumentParser('Usage: %prog [options]')
+    parser.add_argument('root_dir', help='Gallery root directory path')
+    parser.add_argument('-l', '--listen', dest='host', default='127.0.0.1', \
+                                    help='address to listen on [127.0.0.1]')
+    parser.add_argument('-p', '--port', metavar='PORT', dest='port', type=int, \
+                                default=5000, help='port to listen on [5000]')
+    args = parser.parse_args()
+    app.config['ROOT_DIR'] = args.root_dir
+    app.run(host=args.host, port=args.port, debug=True)
