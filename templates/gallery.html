@@ -6,13 +6,18 @@
 <script type="text/javascript" src="static/script.js"></script>
 </head>
 <body>
-<h1>Flask Image Gallery</h1>
+<h1>The Artist of Oltorf</h1>
+<h3>Image Gallery</h3>
   <div class="overlay"><img src="blah" id="top" hidden=True>
     <span id="close" hidden=True onclick=do_close()><b><u>CLOSE(X)</u></b></span>
   </div>
   <div class="cx" style="background-color:#fff;">
+    {% for file in files %}
+    <img src='cdn/{{ file['encoded_path'] }}' alt='{{ file['name'] }}' height=200 width=200 onclick="clicked_img(this)" >
+    <p>{{ file['name'] }}</p>
+    {% endfor %}
     {% for path in paths %}
-    <img src='cdn/{{ path }}' height=200 width=200 onclick="clicked_img(this)" >
+    <img src='cdn/{{ path }}' alt='{{ path }}' height=200 width=200 onclick="clicked_img(this)" >
     {% endfor %}
   </div>
 </body>

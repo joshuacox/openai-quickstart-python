@@ -24,6 +24,10 @@ def decode(x):
 
 @app.route("/", methods=("GET", "POST"))
 def index():
+    return render_template("index.html")
+
+@app.route("/petnames", methods=("GET", "POST"))
+def petnames():
     if request.method == "POST":
         animal = request.form["animal"]
         response = openai.Completion.create(
@@ -34,7 +38,7 @@ def index():
         return redirect(url_for("index", result=response.choices[0].text))
 
     result = request.args.get("result")
-    return render_template("index.html", result=result)
+    return render_template("petnames.html", result=result)
 
 @app.route("/draw", methods=("GET", "POST"))
 def draw():
@@ -42,7 +46,8 @@ def draw():
         drawing = request.form["drawing"]
         #pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
         #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5")
-        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
         pipe = pipe.to("cuda")
         #prompt = "a photo of an astronaut riding a dragon in paris"
         #image = pipe(prompt).images[0]  
@@ -72,7 +77,7 @@ def image():
         #image.save("astronaut_rides_horse.png")
         #image = pipe(drawing).images[0]  
         #return send_file(image, mimetype='image/png')
-        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
         pipe = pipe.to("cuda")
         image = pipe(drawing).images[0]  
         image.seek(0)
@@ -81,7 +86,7 @@ def image():
 
 # This next section was borrowed from: https://github.com/piyush01123/Flask-Image-Gallery
 @app.route('/gallery')
-def home():
+def gallery():
     #root_dir = app.config['ROOT_DIR']
     root_dir = 'images'
     image_paths = []
@@ -91,6 +96,15 @@ def home():
                 image_paths.append(encode(os.path.join(root,file)))
     return render_template('gallery.html', paths=image_paths)
 
+@app.route('/gallery_names')
+def gallery_names():
+    root_dir = 'images'
+    file_arr = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                file_arr.append({ 'encoded_path': encode(os.path.join(root,file)), 'name': os.path.join(file)})
+    return render_template('gallery_names.html', files=file_arr)
 
 @app.route('/cdn/<path:filepath>')
 def download_file(filepath):
