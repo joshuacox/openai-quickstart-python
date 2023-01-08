@@ -35,7 +35,7 @@ def petnames():
             prompt=generate_prompt(animal),
             temperature=0.6,
         )
-        return redirect(url_for("index", result=response.choices[0].text))
+        return redirect(url_for("petnames", result=response.choices[0].text))
 
     result = request.args.get("result")
     return render_template("petnames.html", result=result)
@@ -46,8 +46,8 @@ def draw():
         drawing = request.form["drawing"]
         #pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16)
         #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5")
-        #pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
-        pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
+        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        #pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
         pipe = pipe.to("cuda")
         #prompt = "a photo of an astronaut riding a dragon in paris"
         #image = pipe(prompt).images[0]  
@@ -77,7 +77,8 @@ def image():
         #image.save("astronaut_rides_horse.png")
         #image = pipe(drawing).images[0]  
         #return send_file(image, mimetype='image/png')
-        pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
+        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-v1-5", torch_dtype=torch.float16)
+        #pipe = StableDiffusionPipeline.from_pretrained("/tmp/stable-diffusion-v1-5", torch_dtype=torch.float16)
         pipe = pipe.to("cuda")
         image = pipe(drawing).images[0]  
         image.seek(0)
