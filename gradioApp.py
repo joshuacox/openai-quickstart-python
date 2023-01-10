@@ -82,7 +82,7 @@ drawdemo = gr.Interface(
         ['monet dogs playing poker', "stable-diffusion-v1-5", False],
         ['hindu mandala copper and patina green', "stable-diffusion-v1-5", False],
         ['hindu mandala fruit salad', "stable-diffusion-v1-5", False],
-        ['hindu mandala psychedelic', "stable-diffusion-v1-5", False],
+        ['hindu mandala neon green black and purple', "stable-diffusion-v1-5", False],
         ['astronaut riding a horse on mars', "stable-diffusion-v1-5", False],
         ['astronaut riding a horse on mars', "stable-diffusion-2", False],
         ['astronaut riding a horse on mars', "stable-diffusion-2-1", False]
