@@ -14,13 +14,11 @@ from diffusers import StableDiffusionPipeline
 
 import gradio as gr
 
-def image_classifier(inp):
-    return {'cat': 0.3, 'dog': 0.7}
-
+artist_model_version = 'v2'
 
 def draw(inp):
     drawing = inp
-    drawing_filename = 'images/' + drawing.replace(' ', '_') + '.png'
+    drawing_filename = 'images2/' + drawing.replace(' ', '_') + '.png'
     if os.path.exists(drawing_filename):
         print("found drawing ", drawing_filename)
         return Image.open(drawing_filename) 
@@ -33,5 +31,6 @@ def draw(inp):
     image.save(drawing_filename)
     return image
 
+#demo = gr.Interface(fn=draw, inputs="text", outputs="image", flask_host_name="10.11.5.11")
 demo = gr.Interface(fn=draw, inputs="text", outputs="image")
-demo.launch()
+demo.launch(server_name="10.11.5.11")

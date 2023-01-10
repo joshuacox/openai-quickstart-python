@@ -12,6 +12,7 @@ import torch
 from diffusers import StableDiffusionPipeline
 from flask import Flask, redirect, render_template, request, url_for, send_file, send_from_directory
 
+
 app = Flask(__name__)
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -65,8 +66,10 @@ def draw():
 @app.route("/image", methods=("GET", "POST"))
 def image():
     if request.method == "POST":
+        artist_model_version = 'v1.5'
         drawing = request.form["drawing"]
         print("generating drawing '", drawing, "'")
+        #drawing_filename = 'images/' + drawing.replace(' ', '_') + artist_model_version + '.png'
         drawing_filename = 'images/' + drawing.replace(' ', '_') + '.png'
         if os.path.exists(drawing_filename):
             return send_file(drawing_filename, mimetype='image/png')
@@ -100,6 +103,48 @@ def gallery():
 @app.route('/gallery_names')
 def gallery_names():
     root_dir = 'images'
+    file_arr = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                file_arr.append({ 'encoded_path': encode(os.path.join(root,file)), 'name': os.path.join(file)})
+    return render_template('gallery_names.html', files=file_arr)
+
+@app.route("/draw2", methods=("GET", "POST"))
+def draw2():
+    result = request.args.get("result")
+    return render_template("draw2.html", result=result)
+
+@app.route("/image2", methods=("GET", "POST"))
+def image2():
+    if request.method == "POST":
+        drawing = request.form["drawing"]
+        print("generating drawing '", drawing, "'")
+        drawing_filename = 'images2/' + drawing.replace(' ', '_') + '.png'
+        if os.path.exists(drawing_filename):
+            return send_file(drawing_filename, mimetype='image/png')
+        pipe = StableDiffusionPipeline.from_pretrained("../stable-diffusion-2", torch_dtype=torch.float16)
+        pipe = pipe.to("cuda")
+        image = pipe(drawing).images[0]  
+        image.seek(0)
+        image.save(drawing_filename)
+        return send_file(drawing_filename, mimetype='image/png')
+
+# This next section was borrowed from: https://github.com/piyush01123/Flask-Image-Gallery
+@app.route('/gallery2')
+def gallery2():
+    #root_dir = app.config['ROOT_DIR']
+    root_dir = 'images2'
+    image_paths = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                image_paths.append(encode(os.path.join(root,file)))
+    return render_template('gallery.html', paths=image_paths)
+
+@app.route('/gallery2_names')
+def gallery2_names():
+    root_dir = 'images2'
     file_arr = []
     for root,dirs,files in os.walk(root_dir):
         for file in files:

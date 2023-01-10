@@ -17,3 +17,5 @@ build/
 
 .env
 images/*
+images2/*
+.ipynb_checkpoints
