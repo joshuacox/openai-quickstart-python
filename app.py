@@ -156,7 +156,7 @@ def gallery2_names():
 @app.route('/gallery2_1')
 def gallery2_1():
     #root_dir = app.config['ROOT_DIR']
-    root_dir = 'images2_1'
+    root_dir = 'images2-1'
     image_paths = []
     for root,dirs,files in os.walk(root_dir):
         for file in files:
@@ -166,7 +166,7 @@ def gallery2_1():
 
 @app.route('/gallery2_1_names')
 def gallery2_1_names():
-    root_dir = 'images2_1'
+    root_dir = 'images2-1'
     file_arr = []
     for root,dirs,files in os.walk(root_dir):
         for file in files:
