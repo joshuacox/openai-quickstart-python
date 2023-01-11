@@ -165,7 +165,7 @@ def gallery2_1():
     return render_template('gallery.html', paths=image_paths)
 
 @app.route('/gallery2_1_names')
-def gallery2_names():
+def gallery2_1_names():
     root_dir = 'images2_1'
     file_arr = []
     for root,dirs,files in os.walk(root_dir):
