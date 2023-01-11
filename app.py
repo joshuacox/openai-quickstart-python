@@ -152,6 +152,28 @@ def gallery2_names():
                 file_arr.append({ 'encoded_path': encode(os.path.join(root,file)), 'name': os.path.join(file)})
     return render_template('gallery_names.html', files=file_arr)
 
+# This next section was borrowed from: https://github.com/piyush01123/Flask-Image-Gallery
+@app.route('/gallery2_1')
+def gallery2_1():
+    #root_dir = app.config['ROOT_DIR']
+    root_dir = 'images2_1'
+    image_paths = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                image_paths.append(encode(os.path.join(root,file)))
+    return render_template('gallery.html', paths=image_paths)
+
+@app.route('/gallery2_1_names')
+def gallery2_names():
+    root_dir = 'images2_1'
+    file_arr = []
+    for root,dirs,files in os.walk(root_dir):
+        for file in files:
+            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+                file_arr.append({ 'encoded_path': encode(os.path.join(root,file)), 'name': os.path.join(file)})
+    return render_template('gallery_names.html', files=file_arr)
+
 @app.route('/cdn/<path:filepath>')
 def download_file(filepath):
     dir,filename = os.path.split(decode(filepath))
