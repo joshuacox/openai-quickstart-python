@@ -16,7 +16,6 @@ build/
 .DS_STORE
 
 .env
-images/*
-images2/*
-images2-1/*
+images*
+text*
 .ipynb_checkpoints
